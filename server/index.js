@@ -1,11 +1,12 @@
-const express = require('express');
+import express, { json } from 'express';
 const app = express();
-require('dotenv').config();
+dotenv.config();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+app.use(json());
 
-const delaysRouter = require('./routes/delays');
+import delaysRouter from './routes/delays.js';
+import dotenv from 'dotenv';
 console.log('delays router loaded:', delaysRouter);
 app.use('/api/delays', delaysRouter);
 
