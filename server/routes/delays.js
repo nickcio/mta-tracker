@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
     const feed = gtfs.transit_realtime.FeedMessage.decode(
       new Uint8Array(response.data)
     );
-    res.json({ data: feed });
+    res.json({ data: feed.entity.sort((a, b) => a.id.localeCompare(b.id)) });
 
   } catch (err) {
     res.status(500).json({ error: err.message });

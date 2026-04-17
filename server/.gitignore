@@ -19,3 +19,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+/routes/gtfslirr/calendar_dates.txt
+/routes/gtfslirr/stop_times.txt
+/routes/gtfslirr/transfers.txt
+/routes/gtfslirr/trips.txt
