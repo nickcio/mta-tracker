@@ -1,11 +1,22 @@
-import GtfsRealtimeBindings from "gtfs-realtime-bindings";
-import fetch from "node-fetch";
-import { importGtfs } from 'gtfs';
+//import GtfsRealtimeBindings from "gtfs-realtime-bindings";
+//import fetch from "node-fetch";
+//import { importGtfs } from 'gtfs';
 import { Router } from 'express';
-import supabase from '../supabase.js';
+//import supabase from '../supabase.js';
+import fetchDelays from './services/fetchDelays.js';
 const router = Router();
 //import * as axios from 'axios';
 
+router.get('/', async (req, res) => {
+  try {
+    const count = await fetchDelays();
+    res.json({ status: 'success', saved: count });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/*
 router.get('/', async (req, res) => {
   try {
     const response = await getGtfsData();
@@ -42,7 +53,7 @@ router.get('/', async (req, res) => {
     }));
 
     res.json({ data: feed.entity, trips, vehicles });
-      */
+      
 
     const rows = [];
     feed.entity.forEach(entity => {
@@ -65,7 +76,10 @@ router.get('/', async (req, res) => {
     .delete()
     .lt('fetched_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
 
-    const { error } = await supabase.from('trip_updates').insert(rows);
+    const { error } = await supabase.from('trip_updates').upsert(rows, {
+      onConflict: 'trip_id, stop_id, arrival',
+      ignoreDuplicates: false
+    });
     if (error) throw new Error(error.message);
 
     res.json({ status: 'success', saved: rows.length });
@@ -84,6 +98,6 @@ async function getGtfsData() {
         },
       }
     );
-}
+}*/
 
 export default router;

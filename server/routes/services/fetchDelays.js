@@ -1,10 +1,10 @@
 import GtfsRealtimeBindings from "gtfs-realtime-bindings";
 import fetch from "node-fetch";
 import { importGtfs } from 'gtfs';
-import supabase from '../supabase.js';
+import supabase from '../../supabase.js';
 //import * as axios from 'axios';
 
-router.get('/', async (req, res) => {
+const fetchDelays = async () => {
   try {
     const response = await getGtfsData();
 
@@ -58,20 +58,27 @@ router.get('/', async (req, res) => {
       });
     });
 
+    //delete old data
     await supabase
     .from('trip_updates')
     .delete()
-    .lt('fetched_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+    //30 days
+    /*.lt('fetched_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());*/
+    //2 minute
+    .lt('fetched_at', new Date(Date.now() - 2 * 60 * 1000).toISOString());
 
-    const { error } = await supabase.from('trip_updates').insert(rows);
+    const { error } = await supabase.from('trip_updates').upsert(rows, {
+      onConflict: 'trip_id, stop_id, arrival',
+      ignoreDuplicates: false
+    });
     if (error) throw new Error(error.message);
 
-    res.json({ status: 'success', saved: rows.length });
+    return rows.length;
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return err.message;
   }
-});
+};
 
 async function getGtfsData() {
     return fetch(

@@ -1,4 +1,5 @@
 import express, { json } from 'express';
+import startScheduler from './scheduler.js';
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -19,3 +20,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+startScheduler(1);
