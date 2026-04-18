@@ -10,6 +10,8 @@ import dotenv from 'dotenv';
 console.log('delays router loaded:', delaysRouter);
 app.use('/api/delays', delaysRouter);
 
+console.log(delaysRouter);
+
 app.get('/', (req, res) => {
     res.json({ message: 'Server Is Running' });
 });

@@ -1,9 +1,7 @@
 import GtfsRealtimeBindings from "gtfs-realtime-bindings";
 import fetch from "node-fetch";
 import { importGtfs } from 'gtfs';
-import { Router } from 'express';
 import supabase from '../supabase.js';
-const router = Router();
 //import * as axios from 'axios';
 
 router.get('/', async (req, res) => {
@@ -86,4 +84,4 @@ async function getGtfsData() {
     );
 }
 
-export default router;
+export default fetchDelays;
