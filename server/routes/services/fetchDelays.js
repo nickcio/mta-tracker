@@ -5,7 +5,6 @@ import supabase from '../../supabase.js';
 //import * as axios from 'axios';
 
 const fetchDelays = async () => {
-  try {
     const response = await getGtfsData();
 
     const buffer = await response.arrayBuffer();
@@ -58,6 +57,46 @@ const fetchDelays = async () => {
       });
     });
 
+    // fetch scheduled times for all trip/stop combos in this batch
+    const tripIds = [...new Set(rows.map(r => r.trip_id))];
+    const { data: scheduled, error: scheduleError } = await supabase
+    .from('scheduled_times')
+    .select('trip_id, stop_id, scheduled_arrival')
+    .in('trip_id', tripIds);
+
+    if (scheduleError) throw new Error(scheduleError.message);
+    
+    // build a lookup map for fast access
+    const scheduleMap = {};
+    scheduled?.forEach(s => {
+      scheduleMap[`${s.trip_id}_${s.stop_id}`] = s.scheduled_arrival;
+    });
+
+      // calculate delay for each row
+    const rowsWithDelay = rows.map(row => {
+      const scheduledArrival = scheduleMap[`${row.trip_id}_${row.stop_id}`];
+      let delay_seconds = null;
+
+      if (scheduledArrival && row.arrival) {
+        // convert scheduled HH:MM:SS to seconds since midnight
+        const [h, m, s] = scheduledArrival.split(':').map(Number);
+        const scheduledSeconds = h * 3600 + m * 60 + s;
+
+        const realDate = new Date(row.arrival * 1000);
+        // use UTC to avoid timezone issues
+        const realSeconds = realDate.getUTCHours() * 3600 +
+                            realDate.getUTCMinutes() * 60 +
+                            realDate.getUTCSeconds();
+
+        // account for day overflow (e.g. scheduled 25:30 = 1:30 next day)
+        const normalizedScheduled = scheduledSeconds % 86400;
+
+        delay_seconds = realSeconds - normalizedScheduled;
+      }
+
+      return { ...row, delay_seconds };
+    });
+
     //delete old data
     await supabase
     .from('trip_updates')
@@ -67,17 +106,14 @@ const fetchDelays = async () => {
     //2 minute
     //.lt('fetched_at', new Date(Date.now() - 2 * 60 * 1000).toISOString());
 
-    const { error } = await supabase.from('trip_updates').upsert(rows, {
+    const { error } = await supabase.from('trip_updates').upsert(rowsWithDelay, {
       onConflict: 'trip_id, stop_id, arrival',
       ignoreDuplicates: false
     });
     if (error) throw new Error(error.message);
 
-    return rows.length;
+    return rowsWithDelay.length;
 
-  } catch (err) {
-    return err.message;
-  }
 };
 
 async function getGtfsData() {
