@@ -6,11 +6,20 @@ function App() {
   const [trips, setTrips] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [stopNames, setStopNames] = useState(null);
 
   const searchTrips = async () => {
     if (!origin || !destination) return;
     setLoading(true);
     setError(null);
+    try {
+      const res = await fetch('http://localhost:5170/api/stopnames');
+      const data = await res.json();
+      setStopNames(data.stop_map);
+    } catch (err) {
+      setError('Failed to fetch stop names');
+      console.error(err);
+    }
     try {
       const res = await fetch(
         `http://localhost:5170/api/trips?origin=${origin}&destination=${destination}`
@@ -79,7 +88,7 @@ function App() {
                 padding: '6px 0',
                 borderBottom: '1px solid #f0f0f0'
               }}>
-                <span>Stop {stop.stop_id}</span>
+                <span>Stop {stop.stop_id} {stopNames[stop.stop_id] || ''}</span>
                 <span style={{
                   background: badge,
                   color: 'white',
