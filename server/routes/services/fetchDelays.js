@@ -82,11 +82,12 @@ const fetchDelays = async () => {
         const [h, m, s] = scheduledArrival.split(':').map(Number);
         const scheduledSeconds = h * 3600 + m * 60 + s;
 
+        // convert Unix timestamp to Eastern time
         const realDate = new Date(row.arrival * 1000);
-        // use UTC to avoid timezone issues
-        const realSeconds = realDate.getUTCHours() * 3600 +
-                            realDate.getUTCMinutes() * 60 +
-                            realDate.getUTCSeconds();
+        const easternTime = new Date(realDate.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+        const realSeconds = easternTime.getHours() * 3600 +
+                      easternTime.getMinutes() * 60 +
+                      easternTime.getSeconds();
 
         // account for day overflow (e.g. scheduled 25:30 = 1:30 next day)
         const normalizedScheduled = scheduledSeconds % 86400;

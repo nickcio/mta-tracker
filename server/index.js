@@ -4,6 +4,8 @@ import importSchedule from './routes/services/importSchedule.js';
 const app = express();
 dotenv.config();
 const PORT = process.env.PORT || 3000;
+import tripsRouter from './routes/trips.js';
+app.use('/api/trips', tripsRouter);
 
 app.use(json());
 
