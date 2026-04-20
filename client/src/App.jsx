@@ -13,7 +13,7 @@ function App() {
     setError(null);
     try {
       const res = await fetch(
-        `http://localhost:3000/api/trips?origin=${origin}&destination=${destination}`
+        `http://localhost:5170/api/trips?origin=${origin}&destination=${destination}`
       );
       const data = await res.json();
       setTrips(data.trips);
@@ -64,7 +64,7 @@ function App() {
           <h3 style={{ margin: '0 0 12px 0' }}>Trip {tripId}</h3>
           {stops.map((stop, i) => {
             const delay = stop.delay_seconds;
-            const delayMinutes = delay !== null ? Math.round(delay / 60) : null;
+            const delayMinutes = delay !== null ? Math.round((delay/60)*10)/10 : null;
             const badge = delay === null ? '#999' :
                           delay <= 60 ? 'green' :
                           delay <= 300 ? 'orange' : 'red';

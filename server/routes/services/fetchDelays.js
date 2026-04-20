@@ -41,6 +41,8 @@ const fetchDelays = async () => {
     res.json({ data: feed.entity, trips, vehicles });
       */
 
+    const now = new Date().toISOString()
+
     const rows = [];
     feed.entity.forEach(entity => {
       const tripId = entity.tripUpdate?.trip?.tripId;
@@ -52,7 +54,8 @@ const fetchDelays = async () => {
           stop_id: stop.stopId,
           arrival: stop.arrival?.time?.low ?? null,
           departure: stop.departure?.time?.low ?? null,
-          schedule_relationship: stop.scheduleRelationship ?? null
+          schedule_relationship: stop.scheduleRelationship ?? null,
+          updated_at: new Date().toISOString()
         });
       });
     });
@@ -108,7 +111,7 @@ const fetchDelays = async () => {
     //.lt('fetched_at', new Date(Date.now() - 2 * 60 * 1000).toISOString());
 
     const { error } = await supabase.from('trip_updates').upsert(rowsWithDelay, {
-      onConflict: 'trip_id, stop_id, arrival',
+      onConflict: 'trip_id, stop_id',
       ignoreDuplicates: false
     });
     if (error) throw new Error(error.message);

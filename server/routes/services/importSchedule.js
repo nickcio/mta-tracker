@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const BATCH_SIZE = 1000;
-const GTFS_DIR = join(__dirname, '../gtfslirr'); // folder where you extracted the zip
+const GTFS_DIR = join(__dirname, '../../../gtfslirr'); // folder where you extracted the zip
 
 const getFeedVersion = () => {
   return new Promise((resolve, reject) => {
