@@ -63,9 +63,9 @@ const fetchDelays = async () => {
     .from('trip_updates')
     .delete()
     //30 days
-    /*.lt('fetched_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());*/
+    .lt('fetched_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
     //2 minute
-    .lt('fetched_at', new Date(Date.now() - 2 * 60 * 1000).toISOString());
+    //.lt('fetched_at', new Date(Date.now() - 2 * 60 * 1000).toISOString());
 
     const { error } = await supabase.from('trip_updates').upsert(rows, {
       onConflict: 'trip_id, stop_id, arrival',
