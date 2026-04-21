@@ -27,6 +27,7 @@ function Heatmap() {
         const res = await fetch('http://localhost:5170/api/heatmap');
         const data = await res.json();
         setHeatmapData(data.heatmap);
+        console.log('Updated heatmap data');
       } catch (err) {
         setError('Failed to fetch heatmap data');
         console.error(err);
@@ -35,6 +36,10 @@ function Heatmap() {
       }
     };
     fetchHeatmap();
+
+    const interval = setInterval(fetchHeatmap, 60 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return <p>Loading heatmap...</p>;
