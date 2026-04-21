@@ -35,7 +35,8 @@ router.get('/', async (req, res) => {
     .from('trip_updates')
     .select('trip_id, stop_id, arrival, departure, delay_seconds')
     .in('trip_id', validTripIds)
-    .order('arrival', { ascending: true });
+    .order('schedule_relationship', { ascending: true })
+    .order('departure', { ascending: true });
 
   if (fullError) return res.status(500).json({ error: fullError.message });
 
