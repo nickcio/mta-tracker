@@ -56,7 +56,13 @@ router.get('/', async (req, res) => {
     }
   });
 
-  res.json({ trips: trimmed });
+  const sorted = Object.entries(trimmed).sort((b, a) => {
+    const aOrigin = a[1][0]?.arrival ?? 0;
+    const bOrigin = b[1][0]?.arrival ?? 0;
+    return aOrigin - bOrigin;
+  });
+
+  res.json({ trips: Object.fromEntries(sorted) });
 });
 
 export default router;

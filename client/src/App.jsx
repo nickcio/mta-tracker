@@ -1,4 +1,5 @@
 import { useState,useEffect } from 'react'
+import Heatmap from './Heatmap.jsx';
 
 function App() {
   const [origin, setOrigin] = useState('');
@@ -44,86 +45,118 @@ function App() {
   );
 
   return (
-    <div style={{ maxWidth: '800px', margin: '40px auto', padding: '0 20px' }}>
-      <h1>🚆 LIRR Delay Tracker</h1>
+  <div style={{ maxWidth: '1600px', margin: '0px auto', padding: '0 20px' }}>
+    
+    
+    <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
+      {/* LEFT COLUMN — trip searcher */}
+      <div style={{ flex: '0 0 800px' }}>
+        <h1>🚆 LIRR Delay Tracker</h1>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', marginBottom: '30px' }}>
+          <select
+            value={origin}
+            onChange={e => setOrigin(e.target.value)}
+            style={{ padding: '15px', fontSize: '1rem' }}
+          >
+            <option value=''>Select origin</option>
+            {sortedStops.map(([id, name]) => (
+              <option key={id} value={id}>{name}</option>
+            ))}
+          </select>
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <select
-          value={origin}
-          onChange={e => setOrigin(e.target.value)}
-          style={{ padding: '8px', flex: 1 }}
-        >
-          <option value=''>Select origin</option>
-          {sortedStops.map(([id, name]) => (
-            <option key={id} value={id}>{name}</option>
+          <select
+            value={destination}
+            onChange={e => setDestination(e.target.value)}
+            style={{ padding: '15px', fontSize: '1rem' }}
+          >
+            <option value=''>Select destination</option>
+            {sortedStops.map(([id, name]) => (
+              <option key={id} value={id}>{name}</option>
+            ))}
+          </select>
+
+          <button onClick={searchTrips} style={{ padding: '8px 16px', fontSize: '1rem', cursor: 'pointer' }}>
+            Search
+          </button>
+
+          {loading && <p>Loading...</p>}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {trips && Object.keys(trips).length === 0 && (
+            <p>No trips found between these stops.</p>
+          )}
+        </div>
+
+        
+
+        <div style={{
+          maxHeight: '700px',
+          overflowY: 'auto',
+          border: '1px solid #eee',
+          borderRadius: '8px',
+          padding: '8px'
+        }}>
+          {trips && Object.entries(trips).map(([tripId, stops]) => (
+            <div key={tripId} style={{
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              padding: '16px',
+              marginBottom: '12px'
+            }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem' }}>
+                Trip {tripId} — Departs{' '}
+                {stops[0]?.arrival
+                  ? new Date(stops[0].arrival * 1000).toLocaleString('en-US', {
+                      timeZone: 'America/New_York',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true
+                    })
+                  : 'Unknown'}
+              </h3>
+              {stops.map((stop, i) => {
+                const delay = stop.delay_seconds;
+                const delayMinutes = delay !== null ? Math.round((delay / 60) * 10) / 10 : null;
+                const badge = delay === null ? '#999' :
+                              delay <= 60 ? 'green' :
+                              delay <= 300 ? 'orange' : 'red';
+                const label = delay === null ? 'No data' :
+                              delay <= 60 ? 'On time' :
+                              `${delayMinutes} min late`;
+                return (
+                  <div key={i} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '6px 0',
+                    borderBottom: '1px solid #f0f0f0'
+                  }}>
+                    <span style={{ fontSize: '0.85rem' }}>{stopNames[stop.stop_id] || stop.stop_id}</span>
+                    <span style={{
+                      background: badge,
+                      color: 'white',
+                      padding: '2px 10px',
+                      borderRadius: '12px',
+                      fontSize: '0.8rem'
+                    }}>
+                      {label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           ))}
-        </select>
-
-        <select
-          value={destination}
-          onChange={e => setDestination(e.target.value)}
-          style={{ padding: '8px', flex: 1 }}
-        >
-          <option value=''>Select destination</option>
-          {sortedStops.map(([id, name]) => (
-            <option key={id} value={id}>{name}</option>
-          ))}
-        </select>
-
-        <button onClick={searchTrips} style={{ padding: '8px 16px' }}>
-          Search
-        </button>
+        </div>
       </div>
 
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {/* RIGHT COLUMN — heatmap */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <Heatmap />
+      </div>
 
-      {trips && Object.keys(trips).length === 0 && (
-        <p>No trips found between these stops.</p>
-      )}
-
-      {trips && Object.entries(trips).map(([tripId, stops]) => (
-        <div key={tripId} style={{
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          padding: '16px',
-          marginBottom: '12px'
-        }}>
-          <h3 style={{ margin: '0 0 12px 0' }}>Trip {tripId}</h3>
-          {stops.map((stop, i) => {
-            const delay = stop.delay_seconds;
-            const delayMinutes = delay !== null ? Math.round((delay/60)*10)/10 : null;
-            const badge = delay === null ? '#999' :
-                          delay <= 60 ? 'green' :
-                          delay <= 300 ? 'orange' : 'red';
-            const label = delay === null ? 'No data' :
-                          delay <= 60 ? 'On time' :
-                          `${delayMinutes} min late`;
-
-            return (
-              <div key={i} style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '6px 0',
-                borderBottom: '1px solid #f0f0f0'
-              }}>
-                <span>{stopNames[stop.stop_id] || ''} - Stop {stop.stop_id}</span>
-                <span style={{
-                  background: badge,
-                  color: 'white',
-                  padding: '2px 10px',
-                  borderRadius: '12px',
-                  fontSize: '0.85rem'
-                }}>
-                  {label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      ))}
     </div>
-  );
+  </div>
+);
 }
 
 export default App;
