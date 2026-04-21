@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 
 function App() {
   const [origin, setOrigin] = useState('');
@@ -6,20 +6,25 @@ function App() {
   const [trips, setTrips] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [stopNames, setStopNames] = useState(null);
+  const [stopNames, setStopNames] = useState({});
+
+  useEffect(() => {
+    const fetchStopNames = async () => {
+      try {
+        const res = await fetch('http://localhost:5170/api/stopnames');
+        const data = await res.json();
+        setStopNames(data.stop_map);
+      } catch (err) {
+        console.error('Failed to fetch stop names', err);
+      }
+    };
+    fetchStopNames();
+  }, []);
 
   const searchTrips = async () => {
     if (!origin || !destination) return;
     setLoading(true);
     setError(null);
-    try {
-      const res = await fetch('http://localhost:5170/api/stopnames');
-      const data = await res.json();
-      setStopNames(data.stop_map);
-    } catch (err) {
-      setError('Failed to fetch stop names');
-      console.error(err);
-    }
     try {
       const res = await fetch(
         `http://localhost:5170/api/trips?origin=${origin}&destination=${destination}`
@@ -34,23 +39,37 @@ function App() {
     }
   };
 
+  const sortedStops = Object.entries(stopNames).sort((a, b) =>
+    a[1].localeCompare(b[1])
+  );
+
   return (
     <div style={{ maxWidth: '800px', margin: '40px auto', padding: '0 20px' }}>
       <h1>🚆 LIRR Delay Tracker</h1>
 
       <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <input
-          placeholder="Origin stop ID"
+        <select
           value={origin}
           onChange={e => setOrigin(e.target.value)}
           style={{ padding: '8px', flex: 1 }}
-        />
-        <input
-          placeholder="Destination stop ID"
+        >
+          <option value=''>Select origin</option>
+          {sortedStops.map(([id, name]) => (
+            <option key={id} value={id}>{name}</option>
+          ))}
+        </select>
+
+        <select
           value={destination}
           onChange={e => setDestination(e.target.value)}
           style={{ padding: '8px', flex: 1 }}
-        />
+        >
+          <option value=''>Select destination</option>
+          {sortedStops.map(([id, name]) => (
+            <option key={id} value={id}>{name}</option>
+          ))}
+        </select>
+
         <button onClick={searchTrips} style={{ padding: '8px 16px' }}>
           Search
         </button>
@@ -88,7 +107,7 @@ function App() {
                 padding: '6px 0',
                 borderBottom: '1px solid #f0f0f0'
               }}>
-                <span>Stop {stop.stop_id} {stopNames[stop.stop_id] || ''}</span>
+                <span>{stopNames[stop.stop_id] || ''} - Stop {stop.stop_id}</span>
                 <span style={{
                   background: badge,
                   color: 'white',

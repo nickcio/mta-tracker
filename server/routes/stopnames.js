@@ -7,7 +7,8 @@ router.get('/', async (req, res) => {
   // get stop names
   const { data: stopName, error: stopError } = await supabase
     .from('stop_names')
-    .select('stop_id, stop_name');
+    .select('stop_id, stop_name')
+    .order('stop_id', { ascending: true });
 
   if (stopError) return res.status(500).json({ error: stopError.message });
 

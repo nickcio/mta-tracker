@@ -46,7 +46,17 @@ router.get('/', async (req, res) => {
     grouped[row.trip_id].push(row);
   });
 
-  res.json({ trips: grouped });
+  // trim each trip to start at origin stop
+  const trimmed = {};
+  Object.entries(grouped).forEach(([tripId, stops]) => {
+    const originIndex = stops.findIndex(s => s.stop_id === origin);
+    const destIndex = stops.findIndex(s => s.stop_id === destination);
+    if (originIndex !== -1 && destIndex !== -1 && originIndex < destIndex) {
+      trimmed[tripId] = stops.slice(originIndex, destIndex + 1);
+    }
+  });
+
+  res.json({ trips: trimmed });
 });
 
 export default router;
