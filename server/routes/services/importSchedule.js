@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const BATCH_SIZE = 1000;
-const GTFS_DIR = join(__dirname, '../../../gtfslirr'); // folder where you extracted the zip
+const GTFS_DIR = join(__dirname, '../../../gtfs'); // folder where you extracted the zip
 
 const getFeedVersion = () => {
   return new Promise((resolve, reject) => {
@@ -21,7 +21,7 @@ const getFeedVersion = () => {
   });
 };
 
-const importSchedule = async () => {
+const importSchedule = async (force = false) => {
   const feedVersion = await getFeedVersion();
   console.log('Feed version:', feedVersion);
 
@@ -31,7 +31,7 @@ const importSchedule = async () => {
     .order('imported_at', { ascending: false })
     .limit(1);
 
-  //UPDATE STOP NAMES
+  /*//UPDATE STOP NAMES
 
     console.log('Updating stop names, importing...');
 
@@ -62,12 +62,12 @@ const importSchedule = async () => {
       })
       .on('error', reject);
   });
-  //
+  //*/
 
-  if (existing?.[0]?.feed_version === feedVersion) {
-    console.log('Schedule is already up to date, skipping import');
-    return;
-  }
+  if (!force && existing?.[0]?.feed_version === feedVersion) {
+  console.log('Schedule is already up to date, skipping import');
+  return;
+}
 
   console.log('New schedule detected, importing...');
 
