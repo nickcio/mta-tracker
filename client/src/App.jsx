@@ -8,6 +8,40 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [stopNames, setStopNames] = useState({});
+  const [gtfsStatus, setGtfsStatus] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+  const fetchGtfsStatus = async () => {
+    try {
+      const res = await fetch('http://localhost:5170/api/gtfs/status');
+      const data = await res.json();
+      setGtfsStatus(data);
+    } catch (err) {
+      console.error('Failed to fetch GTFS status', err);
+    }
+  };
+  fetchGtfsStatus();
+}, []);
+
+const refreshGtfs = async () => {
+  if (refreshing) return;
+  setRefreshing(true);
+  try {
+    const res = await fetch('http://localhost:5170/api/gtfs/refresh', { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'success') {
+      // refetch status after refresh
+      const statusRes = await fetch('http://localhost:5170/api/gtfs/status');
+      const statusData = await statusRes.json();
+      setGtfsStatus(statusData);
+    }
+  } catch (err) {
+    console.error('GTFS refresh failed', err);
+  } finally {
+    setRefreshing(false);
+  }
+};
 
   useEffect(() => {
     const fetchStopNames = async () => {
@@ -70,6 +104,7 @@ function App() {
         alignItems: 'center',
         gap: '12px'
       }}>
+        {/* Left — branding */}
         <span style={{ fontSize: '1.2rem' }}>🚆</span>
         <span style={{
           fontFamily: 'DM Mono, monospace',
@@ -81,7 +116,6 @@ function App() {
           LIRR DELAY TRACKER
         </span>
         <span style={{
-          marginLeft: '8px',
           background: 'var(--accent)',
           color: 'white',
           fontSize: '0.65rem',
@@ -92,6 +126,67 @@ function App() {
         }}>
           LIVE
         </span>
+
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+
+        {/* Right — GTFS status + refresh */}
+        {gtfsStatus && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+          }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              lineHeight: 1.3
+            }}>
+              <span style={{
+                fontFamily: 'DM Mono, monospace',
+                fontSize: '0.65rem',
+                color: 'var(--text-muted)',
+                letterSpacing: '0.08em'
+              }}>
+                STATIC FEED
+              </span>
+              <span style={{
+                fontFamily: 'DM Mono, monospace',
+                fontSize: '0.7rem',
+                color: 'var(--green)',
+              }}>
+                {gtfsStatus.feed_version} — {new Date(gtfsStatus.imported_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </span>
+            </div>
+
+            <button
+              onClick={refreshGtfs}
+              disabled={refreshing}
+              style={{
+                padding: '6px 14px',
+                background: refreshing ? 'var(--surface2)' : 'var(--surface2)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                color: refreshing ? 'var(--text-muted)' : 'var(--text)',
+                fontFamily: 'DM Mono, monospace',
+                fontSize: '0.7rem',
+                letterSpacing: '0.05em',
+                cursor: refreshing ? 'not-allowed' : 'pointer',
+                transition: 'all 0.15s',
+                whiteSpace: 'nowrap'
+              }}
+              onMouseEnter={e => { if (!refreshing) e.target.style.borderColor = 'var(--accent)'; }}
+              onMouseLeave={e => { e.target.style.borderColor = 'var(--border)'; }}
+            >
+              {refreshing ? '⟳ UPDATING...' : '⟳ REFRESH FEED'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main layout */}
