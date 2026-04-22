@@ -5,6 +5,7 @@ const startScheduler = (intervalMinutes = 5) => {
 
   setInterval(async () => {
     try {
+      console.log('scheduler firing');
       const count = await fetchDelays();
       console.log(`[${new Date().toISOString()}] Fetched ${count} rows`);
     } catch (err) {

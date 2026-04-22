@@ -4,13 +4,14 @@ dotenv.config();
 import express, { json } from 'express';
 import cors from 'cors';
 import startScheduler from './scheduler.js';
-
+import fetchDelays from './routes/services/fetchDelays.js';
 //Routes
 import importSchedule from './routes/services/importSchedule.js';
 import tripsRouter from './routes/trips.js';
 import delaysRouter from './routes/delays.js';
 import stopNamesRouter from './routes/stopnames.js';
 import heatmapRouter from './routes/heatmap.js';
+
 
 const app = express();
 const PORT = process.env.PORT || 5170;
@@ -33,5 +34,6 @@ app.get('/', (req, res) => {
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   await importSchedule();
+  await fetchDelays();
   startScheduler(4);
 });
