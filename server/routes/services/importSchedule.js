@@ -74,7 +74,7 @@ const importSchedule = async (force = false) => {
   await supabase.from('scheduled_times').delete().neq('trip_id', '');
 
   let batch = [];
-  totalInserted = 0;
+  let totalInserted = 0;
 
   await new Promise((resolve, reject) => {
     fs.createReadStream(path.join(GTFS_DIR, 'stop_times.txt'))

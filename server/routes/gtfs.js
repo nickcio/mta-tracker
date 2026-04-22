@@ -5,10 +5,11 @@ import { fileURLToPath } from 'url';
 import AdmZip from 'adm-zip';
 import fetch from 'node-fetch';
 import supabase from '../supabase.js';
+import importSchedule from './services/importSchedule.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const GTFS_DIR = path.join(__dirname, '../../gtfslirr');
+const GTFS_DIR = path.join(__dirname, '../../gtfs');
 const ZIP_PATH = path.join(__dirname, '../../gtfs.zip');
 
 const router = express.Router();
@@ -34,7 +35,7 @@ router.post('/refresh', async (req, res) => {
   try {
     // 1 — download zip
     console.log('Downloading GTFS static feed...');
-    const response = await fetch('https://new.mta.info/document/52221');
+    const response = await fetch('https://rrgtfsfeeds.s3.amazonaws.com/gtfslirr.zip');
     if (!response.ok) throw new Error(`Download failed: ${response.statusText}`);
     const buffer = await response.arrayBuffer();
     fs.writeFileSync(ZIP_PATH, Buffer.from(buffer));
@@ -43,13 +44,15 @@ router.post('/refresh', async (req, res) => {
     // 2 — extract zip into gtfs folder
     console.log('Extracting...');
     if (!fs.existsSync(GTFS_DIR)) fs.mkdirSync(GTFS_DIR);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    console.log('Buffer size:', buffer.byteLength);
     const zip = new AdmZip(ZIP_PATH);
     zip.extractAllTo(GTFS_DIR, true); // true = overwrite
     fs.unlinkSync(ZIP_PATH); // clean up zip file
     console.log('Extraction complete');
 
     // 3 — reimport schedule
-    const importSchedule = (await import('../services/importSchedule.js')).default;
+    const importSchedule = (await import('./services/importSchedule.js')).default;
     await importSchedule(true); // pass force=true to skip version check
     await importStops();
 
@@ -62,7 +65,7 @@ router.post('/refresh', async (req, res) => {
 
 // helper to reimport stops
 async function importStops() {
-  const importStopsFn = (await import('../services/importStops.js')).default;
+  const importStopsFn = (await import('./services/importStops.js')).default;
   await importStopsFn(true);
 }
 

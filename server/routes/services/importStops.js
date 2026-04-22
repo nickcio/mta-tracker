@@ -13,7 +13,7 @@ const BATCH_SIZE = 500;
 const importStops = async (force = false) => {
   // check if stops already imported
   const { data: existing } = await supabase
-    .from('stops')
+    .from('stop_names')
     .select('stop_id')
     .limit(1);
 
@@ -21,6 +21,8 @@ const importStops = async (force = false) => {
     console.log('Stops already imported, skipping');
     return;
     }
+
+  await supabase.from('stop_names').delete().neq('stop_id', '');
 
   console.log('Importing stops...');
   const rows = [];
@@ -43,7 +45,7 @@ const importStops = async (force = false) => {
   // batch insert
   for (let i = 0; i < rows.length; i += BATCH_SIZE) {
     const batch = rows.slice(i, i + BATCH_SIZE);
-    const { error } = await supabase.from('stops').insert(batch);
+    const { error } = await supabase.from('stop_names').insert(batch);
     if (error) console.error('Insert error:', error.message);
   }
 
