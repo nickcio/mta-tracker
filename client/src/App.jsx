@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import Heatmap from './Heatmap.jsx';
 
 function App() {
@@ -44,119 +44,205 @@ function App() {
     a[1].localeCompare(b[1])
   );
 
+  const selectStyle = {
+    padding: '10px 12px',
+    background: 'var(--surface2)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--radius)',
+    color: 'var(--text)',
+    fontSize: '0.9rem',
+    fontFamily: 'DM Sans, sans-serif',
+    width: '100%',
+    cursor: 'pointer',
+    outline: 'none',
+  };
+
   return (
-  <div style={{ maxWidth: '1600px', margin: '0px auto', padding: '0 20px' }}>
-    
-    
-    <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-      {/* LEFT COLUMN — trip searcher */}
-      <div style={{ flex: '0 0 800px' }}>
-        <h1>🚆 LIRR Delay Tracker</h1>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', marginBottom: '30px' }}>
-          <select
-            value={origin}
-            onChange={e => setOrigin(e.target.value)}
-            style={{ padding: '15px', fontSize: '1rem' }}
-          >
-            <option value=''>Select origin</option>
-            {sortedStops.map(([id, name]) => (
-              <option key={id} value={id}>{name}</option>
-            ))}
-          </select>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
 
-          <select
-            value={destination}
-            onChange={e => setDestination(e.target.value)}
-            style={{ padding: '15px', fontSize: '1rem' }}
-          >
-            <option value=''>Select destination</option>
-            {sortedStops.map(([id, name]) => (
-              <option key={id} value={id}>{name}</option>
-            ))}
-          </select>
-
-          <button onClick={searchTrips} style={{ padding: '8px 16px', fontSize: '1rem', cursor: 'pointer' }}>
-            Search
-          </button>
-
-          {loading && <p>Loading...</p>}
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          {trips && Object.keys(trips).length === 0 && (
-            <p>No trips found between these stops.</p>
-          )}
-        </div>
-
-        
-
-        <div style={{
-          maxHeight: '700px',
-          overflowY: 'auto',
-          border: '1px solid #eee',
-          borderRadius: '8px',
-          padding: '8px'
+      {/* Navbar */}
+      <div style={{
+        background: 'var(--surface)',
+        borderBottom: '1px solid var(--border)',
+        padding: '0 32px',
+        height: '56px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <span style={{ fontSize: '1.2rem' }}>🚆</span>
+        <span style={{
+          fontFamily: 'DM Mono, monospace',
+          fontWeight: 500,
+          fontSize: '1rem',
+          color: 'var(--text)',
+          letterSpacing: '0.05em'
         }}>
-          {trips && Object.entries(trips).map(([tripId, stops]) => (
-            <div key={tripId} style={{
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              padding: '16px',
-              marginBottom: '12px'
-            }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem' }}>
-                Trip {tripId} — Departs{' '}
-                {stops[0]?.arrival
-                  ? new Date(stops[0].arrival * 1000).toLocaleString('en-US', {
-                      timeZone: 'America/New_York',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true
-                    })
-                  : 'Unknown'}
-              </h3>
-              {stops.map((stop, i) => {
-                const delay = stop.delay_seconds;
-                const delayMinutes = delay !== null ? Math.round((delay / 60) * 10) / 10 : null;
-                const badge = delay === null ? '#999' :
-                              delay <= 60 ? 'green' :
-                              delay <= 300 ? 'orange' : 'red';
-                const label = delay === null ? 'No data' :
-                              delay <= 60 ? 'On time' :
-                              `${delayMinutes} min late`;
-                return (
-                  <div key={i} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: '6px 0',
-                    borderBottom: '1px solid #f0f0f0'
+          LIRR DELAY TRACKER
+        </span>
+        <span style={{
+          marginLeft: '8px',
+          background: 'var(--accent)',
+          color: 'white',
+          fontSize: '0.65rem',
+          padding: '2px 8px',
+          borderRadius: '99px',
+          fontFamily: 'DM Mono, monospace',
+          letterSpacing: '0.08em'
+        }}>
+          LIVE
+        </span>
+      </div>
+
+      {/* Main layout */}
+      <div style={{
+        maxWidth: '1400px',
+        margin: '0 auto',
+        padding: '28px 24px',
+        display: 'flex',
+        gap: '24px',
+        alignItems: 'flex-start'
+      }}>
+
+        {/* LEFT — search */}
+        <div style={{ flex: '0 0 320px' }}>
+          <p style={{
+            fontSize: '0.7rem',
+            fontFamily: 'DM Mono, monospace',
+            color: 'var(--text-muted)',
+            letterSpacing: '0.1em',
+            marginBottom: '12px'
+          }}>
+            TRIP SEARCH
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+            <select value={origin} onChange={e => setOrigin(e.target.value)} style={selectStyle}>
+              <option value=''>Origin station</option>
+              {sortedStops.map(([id, name]) => (
+                <option key={id} value={id}>{name}</option>
+              ))}
+            </select>
+
+            <select value={destination} onChange={e => setDestination(e.target.value)} style={selectStyle}>
+              <option value=''>Destination station</option>
+              {sortedStops.map(([id, name]) => (
+                <option key={id} value={id}>{name}</option>
+              ))}
+            </select>
+
+            <button
+              onClick={searchTrips}
+              style={{
+                padding: '10px',
+                background: 'var(--accent)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius)',
+                fontSize: '0.9rem',
+                fontFamily: 'DM Sans, sans-serif',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+              onMouseEnter={e => e.target.style.opacity = '0.85'}
+              onMouseLeave={e => e.target.style.opacity = '1'}
+            >
+              Search
+            </button>
+          </div>
+
+          {loading && <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Loading trips...</p>}
+          {error && <p style={{ color: 'var(--red)', fontSize: '0.85rem' }}>{error}</p>}
+          {trips && Object.keys(trips).length === 0 && (
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No trips found.</p>
+          )}
+
+          {/* Trip results */}
+          <div style={{
+            maxHeight: '70vh',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px'
+          }}>
+            {trips && Object.entries(trips).map(([tripId, stops]) => (
+              <div key={tripId} style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)',
+                padding: '14px',
+              }}>
+                <div style={{ marginBottom: '10px' }}>
+                  <span style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.7rem',
+                    color: 'var(--text-muted)',
+                    letterSpacing: '0.05em'
                   }}>
-                    <span style={{ fontSize: '0.85rem' }}>{stopNames[stop.stop_id] || stop.stop_id}</span>
-                    <span style={{
-                      background: badge,
-                      color: 'white',
-                      padding: '2px 10px',
-                      borderRadius: '12px',
-                      fontSize: '0.8rem'
-                    }}>
-                      {label}
-                    </span>
+                    DEPARTS
+                  </span>
+                  <div style={{ fontWeight: 600, fontSize: '0.95rem', marginTop: '2px' }}>
+                    {stops[0]?.arrival
+                      ? new Date(stops[0].arrival * 1000).toLocaleString('en-US', {
+                          timeZone: 'America/New_York',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })
+                      : 'Unknown'}
                   </div>
-                );
-              })}
-            </div>
-          ))}
+                </div>
+
+                {stops.map((stop, i) => {
+                  const delay = stop.delay_seconds;
+                  const delayMinutes = delay !== null ? Math.round((delay / 60) * 10) / 10 : null;
+                  const badgeColor = delay === null ? 'var(--gray)' :
+                                     delay <= 60 ? 'var(--green)' :
+                                     delay <= 300 ? 'var(--orange)' : 'var(--red)';
+                  const label = delay === null ? 'No data' :
+                                delay <= 60 ? 'On time' :
+                                `${delayMinutes}m late`;
+
+                  return (
+                    <div key={i} style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '5px 0',
+                      borderBottom: i < stops.length - 1 ? '1px solid var(--border)' : 'none',
+                    }}>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text)' }}>
+                        {stopNames[stop.stop_id] || stop.stop_id}
+                      </span>
+                      <span style={{
+                        background: badgeColor,
+                        color: 'white',
+                        padding: '2px 8px',
+                        borderRadius: '99px',
+                        fontSize: '0.75rem',
+                        fontFamily: 'DM Mono, monospace',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* RIGHT COLUMN — heatmap */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <Heatmap />
-      </div>
+        {/* RIGHT — heatmap */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Heatmap />
+        </div>
 
+      </div>
     </div>
-  </div>
-);
+  );
 }
 
 export default App;
