@@ -14,10 +14,14 @@ const updateHeatmap = async () => {
   // aggregate by route and hour
   const aggregated = {};
   data.forEach(row => {
-    const hour = new Date(row.fetched_at).getHours();
-    const key = `${row.route_id}_${hour}`;
+    const date = new Date(row.updated_at);
+    const hour = date.getHours();
+    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+    const day_type = (day === 0 || day === 6) ? 'weekend' : 'weekday';
+    const key = `${row.route_id}_${hour}_${day_type}`;
+
     if (!aggregated[key]) {
-      aggregated[key] = { route_id: row.route_id, hour, total: 0, count: 0 };
+      aggregated[key] = { route_id: row.route_id, hour, day_type, total: 0, count: 0 };
     }
     aggregated[key].total += row.delay_seconds;
     aggregated[key].count += 1;
@@ -27,6 +31,7 @@ const updateHeatmap = async () => {
   const rows = Object.values(aggregated).map(entry => ({
     route_id: entry.route_id,
     hour: entry.hour,
+    day_type: entry.day_type,
     total_delay_seconds: entry.total,
     sample_count: entry.count
   }));
@@ -49,13 +54,14 @@ const updateHeatmap = async () => {
           sample_count: existing.sample_count + row.sample_count
         })
         .eq('route_id', row.route_id)
-        .eq('hour', row.hour);
+        .eq('hour', row.hour)
+        .eq('day_type', row.day_type);
     } else {
       await supabase.from('heatmap_stats').insert(row);
     }
   }
 
-  console.log(`Heatmap updated with ${rows.length} route/hour combinations`);
+  console.log(`Heatmap updated with ${rows.length} route/hour/day_type combinations`);
 };
 
 export default updateHeatmap;
