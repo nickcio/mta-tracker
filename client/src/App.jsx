@@ -274,7 +274,7 @@ const refreshGtfs = async () => {
                     color: 'var(--text-muted)',
                     letterSpacing: '0.05em'
                   }}>
-                    DEPARTS
+                    DEPARTS - ROUTE {stops[0]?.route_id || 'Unknown'}
                   </span>
                   <div style={{ fontWeight: 600, fontSize: '0.95rem', marginTop: '2px' }}>
                     {stops[0]?.arrival

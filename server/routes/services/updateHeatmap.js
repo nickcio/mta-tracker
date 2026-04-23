@@ -14,7 +14,7 @@ const updateHeatmap = async () => {
   // aggregate by route and hour
   const aggregated = {};
   data.forEach(row => {
-    const date = new Date(row.updated_at);
+    const date = new Date(row.fetched_at);
     const hour = date.getHours();
     const day = date.getDay(); // 0 = Sunday, 6 = Saturday
     const day_type = (day === 0 || day === 6) ? 'weekend' : 'weekday';

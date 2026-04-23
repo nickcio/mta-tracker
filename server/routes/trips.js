@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
   // get all trips that serve both the origin and destination stop
   const { data: originTrips, error: originError } = await supabase
     .from('trip_updates')
-    .select('trip_id, stop_id, arrival, departure, delay_seconds')
+    .select('trip_id, route_id, stop_id, arrival, departure, delay_seconds')
     .eq('stop_id', origin);
 
   if (originError) return res.status(500).json({ error: originError.message });
@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 
   const { data: trips, error: tripsError } = await supabase
     .from('trip_updates')
-    .select('trip_id, stop_id, arrival, departure, delay_seconds')
+    .select('trip_id, route_id, stop_id, arrival, departure, delay_seconds')
     .in('trip_id', tripIds)
     .eq('stop_id', destination);
 
@@ -33,7 +33,7 @@ router.get('/', async (req, res) => {
 
   const { data: fullTrips, error: fullError } = await supabase
     .from('trip_updates')
-    .select('trip_id, stop_id, arrival, departure, delay_seconds')
+    .select('trip_id, route_id, stop_id, arrival, departure, delay_seconds')
     .in('trip_id', validTripIds)
     .order('schedule_relationship', { ascending: true })
     .order('departure', { ascending: true });
