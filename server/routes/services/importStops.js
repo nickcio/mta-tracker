@@ -11,6 +11,13 @@ const GTFS_DIR = path.join(__dirname, '../../../gtfs');
 const BATCH_SIZE = 500;
 
 const importStops = async (force = false) => {
+  const stopsPath = path.join(GTFS_DIR, 'stops.txt');
+
+  if (!fs.existsSync(stopsPath)) {
+    console.log('stops.txt not found, skipping stops import');
+    return;
+  }
+
   // check if stops already imported
   const { data: existing } = await supabase
     .from('stop_names')

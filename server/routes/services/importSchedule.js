@@ -22,6 +22,15 @@ const getFeedVersion = () => {
 };
 
 const importSchedule = async (force = false) => {
+  // check if gtfs files exist
+  const feedInfoPath = path.join(GTFS_DIR, 'feed_info.txt');
+  const stopTimesPath = path.join(GTFS_DIR, 'stop_times.txt');
+
+  if (!fs.existsSync(feedInfoPath) || !fs.existsSync(stopTimesPath)) {
+    console.log('GTFS files not found, skipping schedule import');
+    return;
+  }
+  
   const feedVersion = await getFeedVersion();
   console.log('Feed version:', feedVersion);
 
@@ -31,45 +40,12 @@ const importSchedule = async (force = false) => {
     .order('imported_at', { ascending: false })
     .limit(1);
 
-  /*//UPDATE STOP NAMES
-
-    console.log('Updating stop names, importing...');
-
-    await supabase.from('stop_names').delete().neq('stop_id', '');
-
-    let batchStops = [];
-    let totalInserted = 0;
-
-    await new Promise((resolve, reject) => {
-    fs.createReadStream(path.join(GTFS_DIR, 'stops.txt'))
-      .pipe(csv())
-      .on('data', async row => {
-        batchStops.push({
-          stop_id: row.stop_id,
-          stop_name: row.stop_name,
-        });
-      })
-      .on('end', async () => {
-        if (batchStops.length > 0) {
-          const { error } = await supabase
-            .from('stop_names')
-            .insert(batchStops);
-          if (error) console.error('Insert error:', error.message);
-          totalInserted += batchStops.length;
-        }
-        console.log(`StopName Import complete — ${totalInserted} total rows inserted`);
-        resolve();
-      })
-      .on('error', reject);
-  });
-  //*/
-
   if (!force && existing?.[0]?.feed_version === feedVersion) {
-  console.log('Schedule is already up to date, skipping import');
-  return;
-}
-
+    console.log('Schedule is already up to date, skipping import');
+    return;
+  }
   console.log('New schedule detected, importing...');
+  
 
   await supabase.from('scheduled_times').delete().neq('trip_id', '');
 

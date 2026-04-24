@@ -30,7 +30,7 @@ const updateHeatmap = async () => {
   // upsert into heatmap_stats, merging with existing data
   const rows = Object.values(aggregated).map(entry => ({
     route_id: entry.route_id,
-    hour: entry.hour,
+    hour: entry.hours,
     day_type: entry.day_type,
     total_delay_seconds: entry.total,
     sample_count: entry.count

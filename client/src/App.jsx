@@ -16,6 +16,7 @@ function App() {
     try {
       const res = await fetch('http://localhost:5170/api/gtfs/status');
       const data = await res.json();
+      console.log('GTFS status:', data); // add this
       setGtfsStatus(data);
     } catch (err) {
       console.error('Failed to fetch GTFS status', err);
@@ -132,11 +133,7 @@ const refreshGtfs = async () => {
 
         {/* Right — GTFS status + refresh */}
         {gtfsStatus && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-          }}>
+          <>
             <div style={{
               display: 'flex',
               flexDirection: 'column',
@@ -154,22 +151,18 @@ const refreshGtfs = async () => {
               <span style={{
                 fontFamily: 'DM Mono, monospace',
                 fontSize: '0.7rem',
-                color: 'var(--green)',
+                color: gtfsStatus.up_to_date ? 'var(--green)' : 'var(--orange)',
               }}>
-                {gtfsStatus.feed_version} — {new Date(gtfsStatus.imported_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
+                {gtfsStatus.up_to_date ? '✓' : '!'} {gtfsStatus.feed_version} {'\u2014'}{' '}
+                {gtfsStatus.up_to_date ? 'Up to date' : `New version available: ${gtfsStatus.current_version}`}
               </span>
             </div>
-
             <button
               onClick={refreshGtfs}
               disabled={refreshing}
               style={{
                 padding: '6px 14px',
-                background: refreshing ? 'var(--surface2)' : 'var(--surface2)',
+                background: 'var(--surface2)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
                 color: refreshing ? 'var(--text-muted)' : 'var(--text)',
@@ -185,9 +178,9 @@ const refreshGtfs = async () => {
             >
               {refreshing ? '⟳ UPDATING...' : '⟳ REFRESH FEED'}
             </button>
-          </div>
+          </>
         )}
-      </div>
+        </div>
 
       {/* Main layout */}
       <div style={{
