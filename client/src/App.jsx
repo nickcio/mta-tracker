@@ -8,6 +8,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [stopNames, setStopNames] = useState({});
+  const [routeNames, setRouteNames] = useState({});
   const [gtfsStatus, setGtfsStatus] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -55,6 +56,19 @@ const refreshGtfs = async () => {
       }
     };
     fetchStopNames();
+  }, []);
+
+  useEffect(() => {
+    const fetchRouteNames = async () => {
+      try {
+        const res = await fetch('http://localhost:5170/api/routenames');
+        const data = await res.json();
+        setRouteNames(data.route_map);
+      } catch (err) {
+        console.error('Failed to fetch route names', err);
+      }
+    };
+    fetchRouteNames();
   }, []);
 
   const searchTrips = async () => {
@@ -267,7 +281,7 @@ const refreshGtfs = async () => {
                     color: 'var(--text-muted)',
                     letterSpacing: '0.05em'
                   }}>
-                    DEPARTS - ROUTE {stops[0]?.route_id || 'Unknown'}
+                    DEPARTS — {routeNames[stops[0]?.route_id]?.long || `ROUTE ${stops[0]?.route_id}` || 'UNKNOWN ROUTE'}
                   </span>
                   <div style={{ fontWeight: 600, fontSize: '0.95rem', marginTop: '2px' }}>
                     {stops[0]?.arrival
@@ -325,7 +339,7 @@ const refreshGtfs = async () => {
 
         {/* RIGHT — heatmap */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <Heatmap />
+          <Heatmap routeNames={routeNames} />
         </div>
 
       </div>

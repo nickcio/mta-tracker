@@ -22,7 +22,7 @@ const DAY_TYPES = [
   { value: 'weekend', label: 'Weekends' },
 ];
 
-function Heatmap() {
+function Heatmap({ routeNames = {} }) {
   const [heatmapData, setHeatmapData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -151,7 +151,7 @@ function Heatmap() {
                   textAlign: 'center',
                   minWidth: '52px'
                 }}>
-                  Route {routeId}
+                  {routeNames[routeId]?.long?.replace(' Branch', '') || `R${routeId}`}
                 </th>
               ))}
             </tr>
@@ -174,7 +174,7 @@ function Heatmap() {
                   const entry = lookup[`${routeId}_${hour}`];
                   const color = getColor(entry?.avg_delay_seconds);
                   const tooltip = entry
-                    ? `Route ${routeId} @ ${formatHour((hour - 5 + 24) % 24)}: ${entry.avg_delay_minutes} min avg (${entry.sample_count} samples)`
+                    ? `${routeNames[routeId]?.long || `Route ${routeId}`} @ ${formatHour((hour - 5 + 24) % 24)}: ${entry.avg_delay_minutes} min avg (${entry.sample_count} samples)`
                     : 'No data';
                   return (
                     <td key={routeId} title={tooltip} style={{
