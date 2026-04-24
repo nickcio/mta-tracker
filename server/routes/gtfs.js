@@ -8,6 +8,7 @@ import fetch from 'node-fetch';
 import supabase from '../supabase.js';
 import importSchedule from './services/importSchedule.js';
 import fetchDelays from './services/fetchDelays.js';
+import importRoutes from './services/importRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -81,6 +82,7 @@ router.post('/refresh', async (req, res) => {
     const importSchedule = (await import('./services/importSchedule.js')).default;
     await importSchedule(true); // pass force=true to skip version check
     await importStops();
+    await importRoutes(true);
     await fetchDelays();
     console.log('Done importing')
     res.json({ status: 'success', message: 'GTFS data refreshed successfully' });
