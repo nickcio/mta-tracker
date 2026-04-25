@@ -17,7 +17,7 @@ function App() {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/gtfs/status`);
       const data = await res.json();
-      console.log('GTFS status:', data); // add this
+      //console.log('GTFS status:', data); // add this
       setGtfsStatus(data);
     } catch (err) {
       console.error('Failed to fetch GTFS status', err);
