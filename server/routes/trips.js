@@ -34,23 +34,24 @@ router.get('/', async (req, res) => {
   const validTripIds = trips.map(t => t.trip_id);
 
   let fullTrips = [];
-let from = 0;
-const pageSize = 1000;
+  let from = 0;
+  const pageSize = 1000;
 
-while (true) {
-  const { data, error: fullError } = await supabase
-    .from('trip_updates')
-    .select('trip_id, route_id, stop_id, arrival, departure, delay_seconds')
-    .in('trip_id', validTripIds)
-    .range(from, from + pageSize - 1);
+  while (true) {
+    const { data, error: fullError } = await supabase
+      .from('trip_updates')
+      .select('trip_id, route_id, stop_id, arrival, departure, delay_seconds')
+      .in('trip_id', validTripIds)
+      .order('trip_id', { ascending: true })
+      .range(from, from + pageSize - 1);
 
-  if (fullError) return res.status(500).json({ error: fullError.message });
-  
-  fullTrips = fullTrips.concat(data);
-  
-  if (data.length < pageSize) break; // no more pages
-  from += pageSize;
-}
+    if (fullError) return res.status(500).json({ error: fullError.message });
+    
+    fullTrips = fullTrips.concat(data);
+    
+    if (data.length < pageSize) break; // no more pages
+    from += pageSize;
+  }
 
   // group by trip_id
   const grouped = {};
