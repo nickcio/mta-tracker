@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Heatmap from './Heatmap.jsx';
+import SearchableSelect from './SearchableSelect.jsx';
 
 function App() {
   const [origin, setOrigin] = useState('');
@@ -93,7 +94,7 @@ const refreshGtfs = async () => {
     a[1].localeCompare(b[1])
   );
 
-  const selectStyle = {
+  /*const selectStyle = {
     padding: '10px 12px',
     background: 'var(--surface2)',
     border: '1px solid var(--border)',
@@ -104,7 +105,7 @@ const refreshGtfs = async () => {
     width: '100%',
     cursor: 'pointer',
     outline: 'none',
-  };
+  };*/
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
@@ -219,19 +220,19 @@ const refreshGtfs = async () => {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
-            <select value={origin} onChange={e => setOrigin(e.target.value)} style={selectStyle}>
-              <option value=''>Origin station</option>
-              {sortedStops.map(([id, name]) => (
-                <option key={id} value={id}>{name}</option>
-              ))}
-            </select>
+            <SearchableSelect
+              value={origin}
+              onChange={setOrigin}
+              options={sortedStops}
+              placeholder="Origin station"
+            />
 
-            <select value={destination} onChange={e => setDestination(e.target.value)} style={selectStyle}>
-              <option value=''>Destination station</option>
-              {sortedStops.map(([id, name]) => (
-                <option key={id} value={id}>{name}</option>
-              ))}
-            </select>
+            <SearchableSelect
+              value={destination}
+              onChange={setDestination}
+              options={sortedStops}
+              placeholder="Destination station"
+            />
 
             <button
               onClick={searchTrips}
