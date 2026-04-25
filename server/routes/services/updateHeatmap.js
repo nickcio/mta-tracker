@@ -7,7 +7,8 @@ const updateHeatmap = async () => {
     .from('trip_updates')
     .select('route_id, delay_seconds, updated_at')
     .not('delay_seconds', 'is', null)
-    .not('route_id', 'is', null);
+    .not('route_id', 'is', null)
+    .not('route_id', 'eq', '');
 
   if (error) throw new Error(error.message);
 

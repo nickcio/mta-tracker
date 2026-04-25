@@ -8,7 +8,8 @@ router.get('/', async (req, res) => {
 
   let query = supabase
     .from('heatmap_stats')
-    .select('route_id, hour, total_delay_seconds, sample_count');
+    .select('route_id, hour, total_delay_seconds, sample_count')
+    .not('route_id', 'eq', '');
 
   if (day_type && day_type !== 'all') {
     query = query.eq('day_type', day_type);
