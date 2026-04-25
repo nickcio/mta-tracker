@@ -9,6 +9,7 @@ import fetchDelays from './routes/services/fetchDelays.js';
 import importSchedule from './routes/services/importSchedule.js';
 import importStops from './routes/services/importStops.js';
 import importRoutes from './routes/services/importRoutes.js';
+import ensureGtfs from './services/ensureGtfs.js';
 
 import tripsRouter from './routes/trips.js';
 import delaysRouter from './routes/delays.js';
@@ -39,6 +40,7 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  await ensureGtfs();
   await importStops();
   await importSchedule();
   await importRoutes();
