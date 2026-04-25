@@ -35,8 +35,6 @@ router.get('/', async (req, res) => {
     .from('trip_updates')
     .select('trip_id, route_id, stop_id, arrival, departure, delay_seconds')
     .in('trip_id', validTripIds)
-    .order('schedule_relationship', { ascending: true })
-    .order('departure', { ascending: true });
 
   if (fullError) return res.status(500).json({ error: fullError.message });
 
@@ -45,6 +43,15 @@ router.get('/', async (req, res) => {
   fullTrips.forEach(row => {
     if (!grouped[row.trip_id]) grouped[row.trip_id] = [];
     grouped[row.trip_id].push(row);
+  });
+
+  // sort stops within each trip — arrival ascending, nulls last, fall back to departure
+  Object.values(grouped).forEach(stops => {
+    stops.sort((a, b) => {
+      const aTime = a.arrival ?? a.departure ?? Infinity;
+      const bTime = b.arrival ?? b.departure ?? Infinity;
+      return aTime - bTime;
+    });
   });
 
   // trim each trip to start at origin stop
@@ -57,10 +64,10 @@ router.get('/', async (req, res) => {
     }
   });
 
-  const sorted = Object.entries(trimmed).sort((b, a) => {
-    const aOrigin = a[1][0]?.arrival ?? 0;
-    const bOrigin = b[1][0]?.arrival ?? 0;
-    return aOrigin - bOrigin;
+  const sorted = Object.entries(trimmed).sort((a, b) => {
+    const aOrigin = a[1][0]?.arrival ?? a[1][0]?.departure ?? 0;
+    const bOrigin = b[1][0]?.arrival ?? b[1][0]?.departure ?? 0;
+    return bOrigin - aOrigin;
   });
 
   res.json({ trips: Object.fromEntries(sorted) });
