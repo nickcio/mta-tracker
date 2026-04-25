@@ -35,7 +35,7 @@ function Heatmap({ routeNames = {} }) {
           ? `${import.meta.env.VITE_API_URL}/api/heatmap`
           : `${import.meta.env.VITE_API_URL}/api/heatmap?day_type=${dayType}`;
         const res = await fetch(url);
-        const data = await res.json();
+        const data = await res.json();;
         setHeatmapData(data.heatmap);
       } catch (err) {
         setError('Failed to fetch heatmap data');

@@ -15,7 +15,7 @@ function App() {
   useEffect(() => {
   const fetchGtfsStatus = async () => {
     try {
-      const res = await fetch('http://localhost:5170/api/gtfs/status');
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/gtfs/status`);
       const data = await res.json();
       console.log('GTFS status:', data); // add this
       setGtfsStatus(data);
@@ -30,11 +30,11 @@ const refreshGtfs = async () => {
   if (refreshing) return;
   setRefreshing(true);
   try {
-    const res = await fetch('http://localhost:5170/api/gtfs/refresh', { method: 'POST' });
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/gtfs/refresh`, { method: 'POST' });
     const data = await res.json();
     if (data.status === 'success') {
       // refetch status after refresh
-      const statusRes = await fetch('http://localhost:5170/api/gtfs/status');
+      const statusRes = await fetch(`${import.meta.env.VITE_API_URL}/api/gtfs/status`);
       const statusData = await statusRes.json();
       setGtfsStatus(statusData);
     }
@@ -48,7 +48,7 @@ const refreshGtfs = async () => {
   useEffect(() => {
     const fetchStopNames = async () => {
       try {
-        const res = await fetch('http://localhost:5170/api/stopnames');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/stopnames`);
         const data = await res.json();
         setStopNames(data.stop_map);
       } catch (err) {
@@ -61,7 +61,7 @@ const refreshGtfs = async () => {
   useEffect(() => {
     const fetchRouteNames = async () => {
       try {
-        const res = await fetch('http://localhost:5170/api/routenames');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/routenames`);
         const data = await res.json();
         setRouteNames(data.route_map);
       } catch (err) {
@@ -77,7 +77,7 @@ const refreshGtfs = async () => {
     setError(null);
     try {
       const res = await fetch(
-        `http://localhost:5170/api/trips?origin=${origin}&destination=${destination}`
+        `${import.meta.env.VITE_API_URL}/api/trips?origin=${origin}&destination=${destination}`
       );
       const data = await res.json();
       setTrips(data.trips);
