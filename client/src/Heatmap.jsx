@@ -32,8 +32,8 @@ function Heatmap({ routeNames = {} }) {
     const fetchHeatmap = async () => {
       try {
         const url = dayType === 'all'
-          ? 'http://localhost:5170/api/heatmap'
-          : `http://localhost:5170/api/heatmap?day_type=${dayType}`;
+          ? `${import.meta.env.VITE_API_URL}/api/heatmap`
+          : `${import.meta.env.VITE_API_URL}/api/heatmap?day_type=${dayType}`;
         const res = await fetch(url);
         const data = await res.json();
         setHeatmapData(data.heatmap);
