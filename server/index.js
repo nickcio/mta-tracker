@@ -22,7 +22,7 @@ const app = express();
 const PORT = process.env.PORT || 5170;
 app.use(cors({
   origin: ['http://localhost:5173',
-    'https://mta-tracker-server.onrender.com',
+    'https://mta-tracker-client.onrender.com',
   ],
   methods: ['GET'],
   credentials: true
