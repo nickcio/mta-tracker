@@ -309,7 +309,7 @@ const refreshGtfs = async () => {
                   const delay = stop.delay_seconds;
                   const delayMinutes = delay !== null ? Math.round((delay / 60) * 10) / 10 : null;
                   const badgeColor = delay === null ? 'var(--gray)' :
-                                     delay <= 60 ? 'var(--green)' :
+                                     delay <= 60 ? '#166534' :
                                      delay <= 300 ? 'var(--orange)' : 'var(--red)';
                   const label = delay === null ? 'No data' :
                                 delay <= 60 ? 'On time' :
