@@ -293,7 +293,15 @@ const refreshGtfs = async () => {
                           minute: '2-digit',
                           hour12: true
                         })
-                      : 'Unknown'}
+                      : stops[0]?.departure
+                      ? new Date(stops[0].departure * 1000).toLocaleString('en-US', {
+                          timeZone: 'America/New_York',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        }) : 'Unknown'}
                   </div>
                 </div>
 
