@@ -132,7 +132,7 @@ const refreshGtfs = async () => {
         }}>
           LIRR DELAY TRACKER
         </span>
-        <span style={{
+        {(gtfsStatus && <span style={{
           background: 'var(--accent)',
           color: 'white',
           fontSize: '0.65rem',
@@ -142,7 +142,7 @@ const refreshGtfs = async () => {
           letterSpacing: '0.08em'
         }}>
           LIVE
-        </span>
+        </span>)}
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />
@@ -169,8 +169,8 @@ const refreshGtfs = async () => {
                 fontSize: '0.7rem',
                 color: gtfsStatus.up_to_date ? 'var(--green)' : 'var(--orange)',
               }}>
-                {gtfsStatus.up_to_date ? '✓' : '!'} {gtfsStatus.feed_version} {'\u2014'}{' '}
-                {gtfsStatus.up_to_date ? 'Up to date' : `New version available: ${gtfsStatus.current_version}`}
+                {gtfsStatus.up_to_date ? '✓' : '!'} {gtfsStatus.feed_version ? gtfsStatus.feed_version : 'N/A'} {'\u2014'}{' '}
+                {gtfsStatus.up_to_date ? 'Up to date' : `New version available: ${gtfsStatus.current_version ? gtfsStatus.feed_version : 'N/A'}`}
               </span>
             </div>
             <button
