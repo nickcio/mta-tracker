@@ -170,7 +170,7 @@ const refreshGtfs = async () => {
                 color: gtfsStatus.up_to_date ? 'var(--green)' : 'var(--orange)',
               }}>
                 {gtfsStatus.up_to_date ? '✓' : '!'} {gtfsStatus.feed_version ? gtfsStatus.feed_version : 'N/A'} {'\u2014'}{' '}
-                {gtfsStatus.up_to_date ? 'Up to date' : `New version available: ${gtfsStatus.current_version ? gtfsStatus.feed_version : 'N/A'}`}
+                {gtfsStatus.up_to_date ? 'Up to date' : `New version available${gtfsStatus.feed_version ? `: ${gtfsStatus.feed_version}` : '!'}`}
               </span>
             </div>
             <button
