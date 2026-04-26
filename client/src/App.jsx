@@ -12,6 +12,7 @@ function App() {
   const [routeNames, setRouteNames] = useState({});
   const [gtfsStatus, setGtfsStatus] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [timeframe, setTimeframe] = useState('all');
 
   useEffect(() => {
   const fetchGtfsStatus = async () => {
@@ -78,7 +79,7 @@ const refreshGtfs = async () => {
     setError(null);
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/trips?origin=${origin}&destination=${destination}`
+        `${import.meta.env.VITE_API_URL}/api/trips?origin=${origin}&destination=${destination}&timeframe=${timeframe}`
       );
       const data = await res.json();
       setTrips(data.trips);
@@ -234,24 +235,64 @@ const refreshGtfs = async () => {
               placeholder="Destination station"
             />
 
-            <button
-              onClick={searchTrips}
-              style={{
-                padding: '10px',
-                background: 'var(--accent)',
-                color: 'white',
-                border: 'none',
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                onClick={searchTrips}
+                style={{
+                  padding: '10px',
+                  background: 'var(--accent)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 'var(--radius)',
+                  fontSize: '0.9rem',
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  width: '50%',
+                }}
+                onMouseEnter={e => e.target.style.opacity = '0.85'}
+                onMouseLeave={e => e.target.style.opacity = '1'}
+              >
+                Search
+              </button>
+
+              <div style={{
+                display: 'flex',
+                gap: '4px',
+                background: 'var(--surface2)',
+                border: '1px solid var(--border)',
                 borderRadius: 'var(--radius)',
-                fontSize: '0.9rem',
-                fontFamily: 'DM Sans, sans-serif',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-              onMouseEnter={e => e.target.style.opacity = '0.85'}
-              onMouseLeave={e => e.target.style.opacity = '1'}
-            >
-              Search
-            </button>
+                padding: '4px',
+                width: '50%'
+              }}>
+                {[
+                  { value: '24h', label: '24H' },
+                  { value: '7d', label: '7D' },
+                  { value: 'all', label: 'ALL' },
+                ].map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setTimeframe(value)}
+                    style={{
+                      flex: 1,
+                      padding: '6px 0',
+                      border: 'none',
+                      borderRadius: '7px',
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      fontFamily: 'DM Mono, monospace',
+                      letterSpacing: '0.05em',
+                      transition: 'all 0.15s',
+                      background: timeframe === value ? 'var(--accent)' : 'transparent',
+                      color: timeframe === value ? 'white' : 'var(--text-muted)',
+                      fontWeight: timeframe === value ? 600 : 400,
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {loading && <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Loading trips...</p>}
