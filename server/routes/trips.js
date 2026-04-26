@@ -4,20 +4,29 @@ import supabase from '../supabase.js';
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  const { origin, destination } = req.query;
+  const { origin, destination, timeframe } = req.query;
 
   if (!origin || !destination) {
     return res.status(400).json({ error: 'origin and destination are required' });
   }
 
+  const now = Math.floor(Date.now() / 1000); // current Unix timestamp
+  const cutoff = timeframe === '7d' ? now - 7 * 24 * 60 * 60 :
+                timeframe === '24h' ? now - 24 * 60 * 60 :
+                null; // null = all time
+
   // get all trips that serve both the origin and destination stop
-  const { data: originTrips, error: originError } = await supabase
+  let { data: originTrips, error: originError } = await supabase
     .from('trip_updates')
     .select('trip_id, route_id, stop_id, arrival, departure, delay_seconds')
     .eq('stop_id', origin)
     .limit(50000);
 
   if (originError) return res.status(500).json({ error: originError.message });
+
+  if (cutoff) {
+    originTrips = originTrips.filter(t => t.arrival >= cutoff);
+  }
 
   const tripIds = [...new Set(originTrips.map(t => t.trip_id))];
 
