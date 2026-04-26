@@ -206,13 +206,13 @@ mta-project/
 │   ├── index.js                   # Express app entry point
 │   ├── supabase.js                # Supabase client
 │   ├── scheduler.js               # Auto-fetch scheduler (every 5 min)
-│   ├── routes/
-│   │   ├── delays.js              # GET /api/delays
-│   │   ├── trips.js               # GET /api/trips
-│   │   ├── heatmap.js             # GET /api/heatmap
-│   │   ├── stops.js               # GET /api/stopnames
-│   │   ├── routenames.js          # GET /api/routenames
-│   │   └── gtfs.js                # GET /api/gtfs/status, POST /api/gtfs/refresh
+│   └── routes/
+│       ├── delays.js              # GET /api/delays
+│       ├── trips.js               # GET /api/trips
+│       ├── heatmap.js             # GET /api/heatmap
+│       ├── stops.js               # GET /api/stopnames
+│       ├── routenames.js          # GET /api/routenames
+│   ┌───┴── gtfs.js                # GET /api/gtfs/status, POST /api/gtfs/refresh
 │   └── services/
 │       ├── fetchDelays.js         # GTFS realtime fetch + delay calculation
 │       ├── importSchedule.js      # Static schedule importer
